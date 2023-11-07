@@ -14,7 +14,7 @@ import re
 import sys
 import os
 import itertools
-import ui
+#import ui
 import weakref
 import string
 import pyparsing as pp
