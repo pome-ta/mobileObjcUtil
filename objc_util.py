@@ -15,8 +15,8 @@ __all__ = [
   'c_byte', 'c_char_p', 'c_double', 'c_float', 'c_int', 'c_longlong',
   'c_short', 'c_bool', 'c_long', 'c_int32', 'c_ubyte', 'c_uint', 'c_ushort',
   'c_ulong', 'c_ulonglong', 'POINTER', 'pointer', 'load_framework',
-  'nsdata_to_bytes', 'uiimage_to_png'
-]
+  'nsdata_to_bytes', 'uiimage_to_png',
+]  # yapf: disable
 
 try:
   import ctypes
@@ -167,33 +167,54 @@ NS_UTF8 = NSUTF8StringEncoding
 
 
 class CGPoint(Structure):
-  _fields_ = [('x', CGFloat), ('y', CGFloat)]
+  _fields_ = [
+    ('x', CGFloat),
+    ('y', CGFloat),
+  ]
 
 
 class CGSize(Structure):
-  _fields_ = [('width', CGFloat), ('height', CGFloat)]
+  _fields_ = [
+    ('width', CGFloat),
+    ('height', CGFloat),
+  ]
 
 
 class CGVector(Structure):
-  _fields_ = [('dx', CGFloat), ('dy', CGFloat)]
+  _fields_ = [
+    ('dx', CGFloat),
+    ('dy', CGFloat),
+  ]
 
 
 class CGRect(Structure):
-  _fields_ = [('origin', CGPoint), ('size', CGSize)]
+  _fields_ = [
+    ('origin', CGPoint),
+    ('size', CGSize),
+  ]
 
 
 class CGAffineTransform(Structure):
-  _fields_ = [('a', CGFloat), ('b', CGFloat), ('c', CGFloat), ('d', CGFloat),
-              ('tx', CGFloat), ('ty', CGFloat)]
+  _fields_ = [
+    ('a', CGFloat), ('b', CGFloat), ('c', CGFloat), ('d', CGFloat),
+    ('tx', CGFloat), ('ty', CGFloat),
+  ]  # yapf: disable
 
 
 class UIEdgeInsets(Structure):
-  _fields_ = [('top', CGFloat), ('left', CGFloat), ('bottom', CGFloat),
-              ('right', CGFloat)]
+  _fields_ = [
+    ('top', CGFloat),
+    ('left', CGFloat),
+    ('bottom', CGFloat),
+    ('right', CGFloat),
+  ]
 
 
 class NSRange(Structure):
-  _fields_ = [('location', NSUInteger), ('length', NSUInteger)]
+  _fields_ = [
+    ('location', NSUInteger),
+    ('length', NSUInteger),
+  ]
 
 
 # c.f. https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtTypeEncodings.html
@@ -224,7 +245,7 @@ type_encodings = {
   '{UIEdgeInsets}': UIEdgeInsets,
   '{_NSRange}': NSRange,
   '?': c_void_p,
-  '@?': c_void_p
+  '@?': c_void_p,
 }
 
 
