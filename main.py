@@ -1,42 +1,85 @@
-from objc_util import ObjCClass
+# [A simple synthesizer class in Swift · GitHub](https://gist.github.com/larsaugustin/1ba0b01ace8772cf5ecbda8f4e3cf63d)
+import ctypes
+from objc_util import ObjCClass, ObjCInstance, ObjCBlock, on_main_thread
 import pdbg
 
+OSStatus = ctypes.c_int32
+noErr = 0
 
-class Feedback:
+AVAudioEngine = ObjCClass('AVAudioEngine')
+AVAudioSourceNode = ObjCClass('AVAudioSourceNode')
+AVAudioFormat = ObjCClass('AVAudioFormat')
+
+
+class Synthesizer:
 
   def __init__(self):
-    '''
-    https://developer.apple.com/documentation/uikit/uiimpactfeedbackgenerator/feedbackstyle
-      
-      case light = 0
-      case medium = 1
-      case heavy = 2
-      case soft = 3
-      case rigid = 4
-    '''
-    self.__strong = self.__get_feedback_generator(4)
-    self.__weak = self.__get_feedback_generator(0)
+    self.audioEngine: AVAudioEngine
+    self.sourceNode: AVAudioSourceNode
+    self.time = 0.0
+    self.frequencyRamp = 0.0
+    self.currentFrequency = 0.0
 
-  @property
-  def strong(self):
-    return self.__strong.impactOccurred()
+  #@on_main_thread
+  def _setup(self):
+    self.audioEngine = AVAudioEngine.new()
+    outputNode = self.audioEngine.outputNode()
+    #format = self.audioEngine.outputNode().inputFormatForBus(0)
+    format = outputNode.inputFormatForBus(0)
 
-  @property
-  def weak(self):
-    return self.__weak.impactOccurred()
+    inputFormat = AVAudioFormat.alloc().initWithCommonFormat(
+      format.commonFormat(),
+      sampleRate=format.sampleRate(),
+      channels=1,
+      interleaved=format.isInterleaved())
+    #pdbg.state(inputFormat)
+    #pdbg.state(format.sampleRate())
+    renderBlock = ObjCBlock(self._create_renderBlock)
+    #pdbg.state(renderBlock)
+    #pdbg.state(self.audioEngine)
+    self.sourceNode = AVAudioSourceNode.alloc().initWithRenderBlock(
+      renderBlock)
+    #pdbg.state(self.sourceNode)
 
-  def __get_feedback_generator(self, style: int = 0) -> ObjCClass:
-    """
-    call feedback ex:
-    `UIImpactFeedbackGenerator.impactOccurred()`
-    """
+    self.audioEngine.attachNode(self.sourceNode)
+    #pdbg.state(self.audioEngine)
+    self.audioEngine.connect(self.sourceNode,
+                             to=outputNode,
+                             format=inputFormat)
 
-    UIImpactFeedbackGenerator = ObjCClass('UIImpactFeedbackGenerator').new()
-    UIImpactFeedbackGenerator.prepare()
-    UIImpactFeedbackGenerator.initWithStyle_(style)
-    return UIImpactFeedbackGenerator
+  #@on_main_thread
+  def _create_block(self, _cmd, _isSilence, _timestamp, _frameCount,
+                    _outputData):
+    print('h')
+    return noErr
+
+  @on_main_thread
+  def _create_renderBlock(self):
+
+    #@on_main_thread
+    def render(_cmd, _isSilence, _timestamp, _frameCount, _outputData):
+      print('fuga')
+      return noErr
+
+    _block = ObjCBlock(render,
+                       restype=OSStatus,
+                       argtypes=[
+                         ctypes.c_void_p,
+                         ctypes.c_void_p,
+                         ctypes.c_void_p,
+                         ctypes.c_void_p,
+                         ctypes.c_void_p,
+                       ])
+    #print('hoge')
+    return _block
+
+  def start(self):
+    self.audioEngine.startAndReturnError(None)
 
 
 if __name__ == '__main__':
-  feed_back = Feedback()
-  feed_back.strong
+  synthesizer = Synthesizer()
+  synthesizer._setup()
+  synthesizer.start()
+
+
